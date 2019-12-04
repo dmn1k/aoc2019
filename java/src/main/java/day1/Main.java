@@ -1,6 +1,6 @@
 package day1;
 
-import utility.InputDownloader;
+import static utility.InputDownloader.downloadInput;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,7 +9,7 @@ public class Main {
     }
 
     private static int partOne() {
-        return InputDownloader.downloadInput(1).stream()
+        return downloadInput(1).stream()
                 .mapToInt(Integer::valueOf)
                 .map(input -> input / 3)
                 .map(input -> input - 2)
@@ -17,7 +17,7 @@ public class Main {
     }
 
     private static int partTwo() {
-        return InputDownloader.downloadInput(1).stream()
+        return downloadInput(1).stream()
                 .mapToInt(Integer::valueOf)
                 .map(Main::calcFuelRecursive)
                 .sum();

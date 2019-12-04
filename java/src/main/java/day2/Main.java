@@ -1,14 +1,14 @@
 package day2;
 
-import utility.InputDownloader;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static utility.InputDownloader.downloadInput;
+
 public class Main {
     public static void main(String[] args) {
-        List<Integer> initialMemory = InputDownloader.downloadInput(2).stream()
+        List<Integer> initialMemory = downloadInput(2).stream()
                 .flatMap(input -> Arrays.stream(input.split(",")))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
