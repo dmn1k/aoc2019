@@ -14,8 +14,8 @@ public class Main {
                 .map(line -> line.split("\\)"))
                 .collect(Collectors.toMap(val -> val[1], val -> val[0]));
 
-        int result = inOrbitOf.entrySet().stream()
-                .mapToInt(entry -> countOrbitsOf(entry.getKey(), inOrbitOf))
+        int result = inOrbitOf.keySet().stream()
+                .mapToInt(s -> countOrbitsOf(s, inOrbitOf))
                 .sum();
 
         System.out.println("Part 1: " + result);

@@ -1,30 +1,59 @@
-package day5;
+package day7;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Program {
-    private int input;
+    private Deque<Integer> inputs;
+    private Deque<Integer> outputs;
     private int instructionPointer;
     private List<Integer> memory;
 
-    public static Program create(List<Integer> initialMemory, int input) {
+    public static Program create(List<Integer> initialMemory, Integer firstInput) {
         List<Integer> initialMemoryCopy = new ArrayList<>(initialMemory);
 
-        return new Program(input, 0, initialMemoryCopy);
+        Deque<Integer> inputs = new ArrayDeque<>();
+        inputs.push(firstInput);
+        return new Program(inputs, new ArrayDeque<>(), 0, initialMemoryCopy);
     }
 
-    public void run() {
-        if (!isFinished()) {
+    public static Program create(List<Integer> initialMemory) {
+        List<Integer> initialMemoryCopy = new ArrayList<>(initialMemory);
+
+        return new Program(new ArrayDeque<>(), new ArrayDeque<>(), 0, initialMemoryCopy);
+    }
+
+    public void pushInput(Integer input){
+        this.inputs.push(input);
+    }
+
+    public void addLastInput(Integer input){
+        this.inputs.addLast(input);
+    }
+
+    public Program run() {
+        if (outputs.isEmpty() && !isTerminated()) {
             UnaryOperator<Program> op = decode();
             Program newProgram = op.apply(this);
-            newProgram.run();
+            return newProgram.run();
+        } else {
+            return this;
         }
+    }
+
+    public Deque<Integer> getOutputs() {
+        return outputs;
+    }
+
+    public Deque<Integer> getInputs() {
+        return inputs;
     }
 
     private UnaryOperator<Program> decode() {
@@ -35,19 +64,23 @@ public class Program {
                     + mem.fetchParam(2, currentInstruction.getParam2AccessMode()), mem.fetchParam(3, Instruction.MemoryAccessMode.Immediate), 4);
             case 2 -> mem -> mem.writeResult(mem.fetchParam(1, currentInstruction.getParam1AccessMode())
                     * mem.fetchParam(2, currentInstruction.getParam2AccessMode()), mem.fetchParam(3, Instruction.MemoryAccessMode.Immediate), 4);
-            case 3 -> mem -> mem.writeResult(input, mem.fetchParam(1, Instruction.MemoryAccessMode.Immediate), 2);
+            case 3 -> mem -> {
+                Integer input = inputs.pop();
+                //System.out.println("read input: " + input);
+                return mem.writeResult(input, mem.fetchParam(1, Instruction.MemoryAccessMode.Immediate), 2);
+            };
             case 4 -> mem -> {
-                System.out.println(mem.fetchParam(1, currentInstruction.getParam1AccessMode()));
-                return new Program(input, instructionPointer + 2, memory);
+                outputs.push(mem.fetchParam(1, currentInstruction.getParam1AccessMode()));
+                return new Program(inputs, outputs, instructionPointer + 2, memory);
             };
             case 5 -> mem -> {
                 int firstParam = mem.fetchParam(1, currentInstruction.getParam1AccessMode());
                 int secondParam = mem.fetchParam(2, currentInstruction.getParam2AccessMode());
 
                 if (firstParam != 0) {
-                    return new Program(input, secondParam, memory);
+                    return new Program(inputs, outputs, secondParam, memory);
                 } else {
-                    return new Program(input, instructionPointer + 3, memory);
+                    return new Program(inputs, outputs, instructionPointer + 3, memory);
                 }
             };
             case 6 -> mem -> {
@@ -55,9 +88,9 @@ public class Program {
                 int secondParam = mem.fetchParam(2, currentInstruction.getParam2AccessMode());
 
                 if (firstParam == 0) {
-                    return new Program(input, secondParam, memory);
+                    return new Program(inputs, outputs, secondParam, memory);
                 } else {
-                    return new Program(input, instructionPointer + 3, memory);
+                    return new Program(inputs, outputs, instructionPointer + 3, memory);
                 }
             };
             case 7 -> mem -> {
@@ -88,7 +121,7 @@ public class Program {
         }
     }
 
-    private boolean isFinished() {
+    public boolean isTerminated() {
         return instructionPointer >= memory.size() - 1;
     }
 
@@ -96,10 +129,10 @@ public class Program {
         List<Integer> newMemory = new ArrayList<>(memory);
         newMemory.set(memoryCell, result);
 
-        return new Program(input, instructionPointer + steps, newMemory);
+        return new Program(inputs, outputs, instructionPointer + steps, newMemory);
     }
 
     private Program terminate() {
-        return new Program(input, memory.size(), memory);
+        return new Program(inputs, outputs, memory.size(), memory);
     }
 }
