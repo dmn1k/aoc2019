@@ -1,9 +1,10 @@
 package day7;
 
+import intcode.IntcodeProgram;
 
-import com.google.common.collect.Lists;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static utility.InputDownloader.downloadInput;
@@ -15,72 +16,65 @@ public class Main {
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
 
+        IntcodeProgram programTemplate = IntcodeProgram.builder()
+                .memory(initialMemory)
+                .build();
+
+        System.out.println("Part 1: " + getOutputWithoutFeebackLoop(programTemplate));
+        System.out.println("Part 2: " + getOutputWithFeebackLoop(programTemplate));
+    }
+
+    private static int getOutputWithoutFeebackLoop(IntcodeProgram programTemplate) {
         List<Integer> outputs = new ArrayList<>();
-        List<Integer> phaseSetting = Lists.newArrayList(0, 1, 2, 3, 4);
+        List<Integer> phaseSetting = Arrays.asList(0, 1, 2, 3, 4);
         for (List<Integer> setting : getAllCombinations(phaseSetting)) {
-            int lastOutput = 0;
-            for (Integer s : setting) {
-                Program program = Program.create(initialMemory);
-                program.pushInput(lastOutput);
-                program.pushInput(s);
-                lastOutput = program.run().getOutputs().pop();
-            }
-            outputs.add(lastOutput);
+            List<IntcodeProgram> programs = setting.stream()
+                    .map(phaseValue -> programTemplate.copy().addInput(phaseValue))
+                    .collect(Collectors.toList());
+
+            programs.get(0).addInput(0).addOutputHandler(o -> next(programs, 0, o));
+            programs.get(1).addOutputHandler(o -> next(programs, 1, o));
+            programs.get(2).addOutputHandler(o -> next(programs, 2, o));
+            programs.get(3).addOutputHandler(o -> next(programs, 3, o));
+            programs.get(4).addOutputHandler(outputs::add);
+
+            programs.get(0).run();
         }
 
-        System.out.println("PART 1: " + outputs.stream().mapToInt(i -> i).max());
+        return outputs.stream().mapToInt(i -> i).max().orElseThrow();
+    }
 
-        // Crappy Code, TODO Refactor
-        List<Integer> outputsPart2 = new ArrayList<>();
-        List<Integer> phaseSettingsPart2 = Lists.newArrayList(5, 6, 7, 8, 9);
-        for (List<Integer> setting : getAllCombinations(phaseSettingsPart2)) {
-            System.out.println(setting);
-            Map<Integer, Program> ampPrograms = new HashMap<>();
-            for (int i = 0; i < setting.size(); i++) {
-                ampPrograms.put(i, Program.create(initialMemory, setting.get(i)));
-            }
+    private static int getOutputWithFeebackLoop(IntcodeProgram programTemplate) {
+        List<Integer> outputs = new ArrayList<>();
+        List<Integer> phaseSetting = Arrays.asList(5, 6, 7, 8, 9);
+        for (List<Integer> setting : getAllCombinations(phaseSetting)) {
+            List<IntcodeProgram> programs = setting.stream()
+                    .map(phaseValue -> programTemplate.copy().addInput(phaseValue))
+                    .collect(Collectors.toList());
 
-            int currentProgram = 0;
-            Map<Integer, Integer> lastOutputPerAmp = new HashMap<>();
-            lastOutputPerAmp.put(4, 0);
-            while (!ampPrograms.isEmpty()) {
-                Program program = ampPrograms.get(currentProgram);
+            programs.get(0).addInput(0)
+                    .addOutputHandler(o -> next(programs, 0, o));
+            programs.get(1)
+                    .addOutputHandler(o -> next(programs, 1, o));
+            programs.get(2)
+                    .addOutputHandler(o -> next(programs, 2, o));
+            programs.get(3)
+                    .addOutputHandler(o -> next(programs, 3, o));
+            programs.get(4).addOutputHandler(o -> {
+                    outputs.add(o);
+                    next(programs, 4, o);
+            });
 
-                int lastProgram = currentProgram - 1;
-                if (lastProgram < 0) {
-                    lastProgram = ampPrograms.size() - 1;
-                }
-
-                program.addLastInput(lastOutputPerAmp.get(lastProgram));
-                Program p = program.run();
-
-                ampPrograms.remove(currentProgram);
-                ampPrograms.put(currentProgram, p);
-
-                if (!p.getOutputs().isEmpty()) {
-                    lastOutputPerAmp.remove(currentProgram);
-                    lastOutputPerAmp.put(currentProgram, p.getOutputs().pop());
-                }
-
-                if (p.isTerminated()) {
-                    System.out.println(currentProgram + " terminated");
-
-                    if (currentProgram == ampPrograms.size() - 1) {
-                        break;
-                    }
-                }
-
-                currentProgram++;
-
-                if (currentProgram > ampPrograms.size() - 1) {
-                    currentProgram = 0;
-                }
-            }
-
-            outputsPart2.add(lastOutputPerAmp.get(4));
+            programs.get(0).run();
         }
 
-        System.out.println("PART 2: " + outputsPart2.stream().mapToInt(i -> i).max());
+        return outputs.stream().mapToInt(i -> i).max().orElseThrow();
+    }
+
+    private static void next(List<IntcodeProgram> programs, int current, int output){
+        IntcodeProgram nextProgram = programs.get(current < programs.size() - 1 ? current + 1 : 0);
+
+        nextProgram.addInput(output).run();
     }
 
     private static List<List<Integer>> getAllCombinations(List<Integer> input) {
