@@ -11,9 +11,9 @@ import static utility.InputDownloader.downloadInput;
 
 public class Main {
     public static void main(String[] args) {
-        List<Integer> initialMemory = downloadInput(5).stream()
+        List<Long> initialMemory = downloadInput(5).stream()
                 .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Integer::parseInt)
+                .map(Long::parseLong)
                 .collect(Collectors.toList());
 
         IntcodeProgram programTemplate = IntcodeProgram.builder()
@@ -22,13 +22,13 @@ public class Main {
 
         System.out.println("PART 1");
         IntcodeProgram program1 = programTemplate.copy()
-                .addInput(1)
+                .addInput(1L)
                 .addOutputHandler(System.out::println);
         program1.run();
 
         System.out.println("PART 2");
         IntcodeProgram program2 = programTemplate.copy()
-                .addInput(5)
+                .addInput(5L)
                 .addOutputHandler(System.out::println);
         program2.run();
     }

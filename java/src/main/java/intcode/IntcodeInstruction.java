@@ -11,7 +11,7 @@ public class IntcodeInstruction {
     private MemoryAccessMode param2AccessMode;
     private MemoryAccessMode param3AccessMode;
 
-    public static IntcodeInstruction parse(int input) {
+    public static IntcodeInstruction parse(long input) {
         String inputAsStr = String.valueOf(input);
         String paddedInputStr = String.format("%5s", inputAsStr).replace(' ', '0');
 
@@ -26,11 +26,16 @@ public class IntcodeInstruction {
     }
 
     private static MemoryAccessMode getMemoryAccessMode(String reversePaddedInputStr, int idx) {
-        return reversePaddedInputStr.charAt(idx) == '0'
-                ? MemoryAccessMode.Position : MemoryAccessMode.Immediate;
+        char mode = reversePaddedInputStr.charAt(idx);
+        return switch (mode) {
+            case '0' -> MemoryAccessMode.Position;
+            case '1' -> MemoryAccessMode.Immediate;
+            case '2' -> MemoryAccessMode.Relative;
+            default -> throw new IllegalStateException("Unknown Mode " + mode);
+        };
     }
 
     public enum MemoryAccessMode {
-        Position, Immediate;
+        Position, Immediate, Relative;
     }
 }

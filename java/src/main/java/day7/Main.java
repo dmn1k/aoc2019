@@ -11,9 +11,9 @@ import static utility.InputDownloader.downloadInput;
 
 public class Main {
     public static void main(String[] args) {
-        List<Integer> initialMemory = downloadInput(7).stream()
+        List<Long> initialMemory = downloadInput(7).stream()
                 .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Integer::parseInt)
+                .map(Long::parseLong)
                 .collect(Collectors.toList());
 
         IntcodeProgram programTemplate = IntcodeProgram.builder()
@@ -24,15 +24,15 @@ public class Main {
         System.out.println("Part 2: " + getOutputWithFeebackLoop(programTemplate));
     }
 
-    private static int getOutputWithoutFeebackLoop(IntcodeProgram programTemplate) {
-        List<Integer> outputs = new ArrayList<>();
+    private static long getOutputWithoutFeebackLoop(IntcodeProgram programTemplate) {
+        List<Long> outputs = new ArrayList<>();
         List<Integer> phaseSetting = Arrays.asList(0, 1, 2, 3, 4);
         for (List<Integer> setting : getAllCombinations(phaseSetting)) {
             List<IntcodeProgram> programs = setting.stream()
-                    .map(phaseValue -> programTemplate.copy().addInput(phaseValue))
+                    .map(phaseValue -> programTemplate.copy().addInput((long) phaseValue))
                     .collect(Collectors.toList());
 
-            programs.get(0).addInput(0).addOutputHandler(o -> next(programs, 0, o));
+            programs.get(0).addInput(0L).addOutputHandler(o -> next(programs, 0, o));
             programs.get(1).addOutputHandler(o -> next(programs, 1, o));
             programs.get(2).addOutputHandler(o -> next(programs, 2, o));
             programs.get(3).addOutputHandler(o -> next(programs, 3, o));
@@ -41,18 +41,18 @@ public class Main {
             programs.get(0).run();
         }
 
-        return outputs.stream().mapToInt(i -> i).max().orElseThrow();
+        return outputs.stream().mapToLong(i -> i).max().orElseThrow();
     }
 
-    private static int getOutputWithFeebackLoop(IntcodeProgram programTemplate) {
-        List<Integer> outputs = new ArrayList<>();
+    private static long getOutputWithFeebackLoop(IntcodeProgram programTemplate) {
+        List<Long> outputs = new ArrayList<>();
         List<Integer> phaseSetting = Arrays.asList(5, 6, 7, 8, 9);
         for (List<Integer> setting : getAllCombinations(phaseSetting)) {
             List<IntcodeProgram> programs = setting.stream()
-                    .map(phaseValue -> programTemplate.copy().addInput(phaseValue))
+                    .map(phaseValue -> programTemplate.copy().addInput((long) phaseValue))
                     .collect(Collectors.toList());
 
-            programs.get(0).addInput(0)
+            programs.get(0).addInput(0L)
                     .addOutputHandler(o -> next(programs, 0, o));
             programs.get(1)
                     .addOutputHandler(o -> next(programs, 1, o));
@@ -61,17 +61,17 @@ public class Main {
             programs.get(3)
                     .addOutputHandler(o -> next(programs, 3, o));
             programs.get(4).addOutputHandler(o -> {
-                    outputs.add(o);
-                    next(programs, 4, o);
+                outputs.add(o);
+                next(programs, 4, o);
             });
 
             programs.get(0).run();
         }
 
-        return outputs.stream().mapToInt(i -> i).max().orElseThrow();
+        return outputs.stream().mapToLong(i -> i).max().orElseThrow();
     }
 
-    private static void next(List<IntcodeProgram> programs, int current, int output){
+    private static void next(List<IntcodeProgram> programs, int current, long output) {
         IntcodeProgram nextProgram = programs.get(current < programs.size() - 1 ? current + 1 : 0);
 
         nextProgram.addInput(output).run();
