@@ -3,6 +3,7 @@ package day9;
 import intcode.IntcodeProgram;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +17,7 @@ public class Main {
                 .collect(Collectors.toList());
 
         IntcodeProgram programTemplate = IntcodeProgram.builder().memory(initialMemory)
-                .outputHandlers(Arrays.asList(System.out::println))
+                .outputHandlers(Collections.singletonList(System.out::println))
                 .build();
         IntcodeProgram part1Program = programTemplate.copy().addInput(1L);
 

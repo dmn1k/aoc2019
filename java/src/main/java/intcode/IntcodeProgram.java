@@ -88,10 +88,10 @@ public class IntcodeProgram {
     }
 
     @Builder.Default
-    private final Deque<Long> inputQueue = new ArrayDeque<>();
+    private Deque<Long> inputQueue = new ArrayDeque<>();
 
     @Builder.Default
-    private final List<LongConsumer> outputHandlers = new ArrayList<>();
+    private List<LongConsumer> outputHandlers = new ArrayList<>();
 
     @Builder.Default
     private int instructionPointer = 0;
@@ -99,7 +99,7 @@ public class IntcodeProgram {
     @Builder.Default
     private int relativeBase = 0;
 
-    private final List<Long> memory;
+    private List<Long> memory;
 
     public IntcodeProgram addInput(Long input) {
         inputQueue.addLast(input);
@@ -137,6 +137,13 @@ public class IntcodeProgram {
                 .build();
     }
 
+    public void reset(List<Long> memory){
+        this.inputQueue = new ArrayDeque<>();
+        this.outputHandlers = new ArrayList<>();
+        this.instructionPointer = 0;
+        this.relativeBase = 0;
+        this.memory = memory;
+    }
     private IntcodeInstruction decode() {
         Long instructionCode = memory.get(instructionPointer);
         return IntcodeInstruction.parse(instructionCode);
