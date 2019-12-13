@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import static org.jooq.lambda.Seq.seq;
 
-public class CollectionUtils {
+public class Collections {
     public static List<List<Integer>> chunk(List<Integer> input, int chunkSize) {
         return seq(input)
                 .zipWithIndex()

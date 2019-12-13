@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 
-import static utility.CollectionUtils.chunkLong;
+import static utility.Collections.chunkLong;
 import static utility.InputDownloader.downloadInput;
 
 public class Main {

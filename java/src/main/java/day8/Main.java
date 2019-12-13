@@ -1,7 +1,5 @@
 package day8;
 
-import org.jooq.lambda.tuple.Tuple2;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -9,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.jooq.lambda.Seq.seq;
-import static utility.CollectionUtils.chunk;
+import static utility.Collections.chunk;
 import static utility.InputDownloader.downloadInput;
 
 public class Main {

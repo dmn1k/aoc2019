@@ -21,6 +21,15 @@ public class AxisSnapshot {
                 .velocities(posList.stream().map(i -> 0L).collect(Collectors.toList()))
                 .build();
     }
+
+    public AxisSnapshot moveTimeSteps(int times){
+        if(times <= 0){
+            return this;
+        }
+
+        return createNext().moveTimeSteps(times - 1);
+    }
+
     public AxisSnapshot createNext() {
         List<Long> newVelocities = new ArrayList<>();
         List<Long> newPositions = new ArrayList<>();
@@ -44,6 +53,18 @@ public class AxisSnapshot {
                 .positions(newPositions)
                 .velocities(newVelocities)
                 .build();
+    }
+
+    public long getCycleTime() {
+        long currentTimeStep = 0;
+        AxisSnapshot currentSnapshot = this;
+        while (true) {
+            currentTimeStep++;
+            currentSnapshot = currentSnapshot.createNext();
+            if (currentSnapshot.equals(this)) {
+                return currentTimeStep;
+            }
+        }
     }
 
     public long getAbsoluteVelocity(int idx){
