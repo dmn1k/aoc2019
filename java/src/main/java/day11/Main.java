@@ -1,6 +1,7 @@
 package day11;
 
 import intcode.IntcodeProgram;
+import math.Coordinate2d;
 
 import java.util.*;
 import java.util.function.LongConsumer;
@@ -16,7 +17,7 @@ public class Main {
                 .collect(Collectors.toList());
 
         IntcodeProgram program = IntcodeProgram.builder().memory(initialMemory).build().addInput(0L);
-        Map<Coordinate, Color> grid = new HashMap<>();
+        Map<Coordinate2d, Color> grid = new HashMap<>();
         Robot robot = new Robot();
         LongConsumer outputHandler = output -> {
             if (robot.getRobotState() == RobotState.Paint) {
@@ -42,15 +43,15 @@ public class Main {
         robot.reset();
         program.run();
 
-        int minX = grid.keySet().stream().min(Comparator.comparing(Coordinate::getX)).map(Coordinate::getX).orElseThrow();
-        int minY = grid.keySet().stream().min(Comparator.comparing(Coordinate::getY)).map(Coordinate::getY).orElseThrow();
-        int maxX = grid.keySet().stream().max(Comparator.comparing(Coordinate::getX)).map(Coordinate::getX).orElseThrow();
-        int maxY = grid.keySet().stream().max(Comparator.comparing(Coordinate::getY)).map(Coordinate::getY).orElseThrow();
+        long minX = grid.keySet().stream().min(Comparator.comparing(Coordinate2d::getX)).map(Coordinate2d::getX).orElseThrow();
+        long minY = grid.keySet().stream().min(Comparator.comparing(Coordinate2d::getY)).map(Coordinate2d::getY).orElseThrow();
+        long maxX = grid.keySet().stream().max(Comparator.comparing(Coordinate2d::getX)).map(Coordinate2d::getX).orElseThrow();
+        long maxY = grid.keySet().stream().max(Comparator.comparing(Coordinate2d::getY)).map(Coordinate2d::getY).orElseThrow();
 
-        for (int y = minY; y <= maxY; y++) {
+        for (long y = minY; y <= maxY; y++) {
             StringBuilder rowBuilder = new StringBuilder();
-            for (int x = minX; x <= maxX; x++) {
-                Color color = grid.getOrDefault(new Coordinate(x, y), Color.Black);
+            for (long x = minX; x <= maxX; x++) {
+                Color color = grid.getOrDefault(new Coordinate2d(x, y), Color.Black);
                 rowBuilder.append(color.toString());
             }
 

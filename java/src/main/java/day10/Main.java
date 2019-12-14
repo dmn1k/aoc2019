@@ -1,5 +1,7 @@
 package day10;
 
+import math.CartesianCoordinate;
+import math.PolarCoordinate;
 import org.jooq.lambda.tuple.Tuple2;
 
 import java.util.*;
@@ -25,9 +27,10 @@ public class Main {
 
         Map<CartesianCoordinate, Integer> visibleAsteroidsCount = new HashMap<>();
         for (CartesianCoordinate baseAsteroid : asteroids) {
-            Map<Double, List<PolarCoordinate>> asteroidsPerAngle = asteroids.stream().filter(a -> a != baseAsteroid)
+            Map<Double, List<PolarCoordinate>> asteroidsPerAngle = asteroids.stream()
+                    .filter(a -> a != baseAsteroid)
                     .map(coord -> coord.relativeTo(baseAsteroid))
-                    .map(CartesianCoordinate::toPolar)
+                    .map(coord -> coord.toPolar(4))
                     .collect(groupingBy(PolarCoordinate::getAngle));
             visibleAsteroidsCount.put(baseAsteroid, asteroidsPerAngle.keySet().size());
         }
@@ -38,9 +41,10 @@ public class Main {
                 .orElseThrow();
         System.out.println("Part 1: " + bestAsteroid.getX() + ", " + bestAsteroid.getY() + ": " + visibleAsteroidsCount.get(bestAsteroid));
 
-        Map<Double, List<PolarCoordinate>> asteroidsPerAngle = asteroids.stream().filter(a -> a != bestAsteroid)
+        Map<Double, List<PolarCoordinate>> asteroidsPerAngle = asteroids.stream()
+                .filter(a -> a != bestAsteroid)
                 .map(coord -> coord.relativeTo(bestAsteroid))
-                .map(CartesianCoordinate::toPolar)
+                .map(coord -> coord.toPolar(4))
                 .collect(groupingBy(PolarCoordinate::getAngle,
                         collectingAndThen(toList(), l -> l.stream().sorted(comparing(PolarCoordinate::getLength)).collect(toList()))));
 

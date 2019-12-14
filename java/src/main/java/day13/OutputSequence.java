@@ -3,6 +3,7 @@ package day13;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import math.Coordinate2d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class OutputSequence {
-    private Coordinate coordinate;
+    private Coordinate2d coordinate;
     private TileId tileId;
     private long score;
 
@@ -28,7 +29,7 @@ public class OutputSequence {
         } else {
             tileId = TileId.valueOf(outputs.get(2));
         }
-        return new OutputSequence(new Coordinate(x, y), tileId, score);
+        return new OutputSequence(new Coordinate2d(x, y), tileId, score);
     }
 
     public boolean isScore() {

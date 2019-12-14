@@ -1,17 +1,18 @@
 package day11;
 
 import lombok.Getter;
+import math.Coordinate2d;
 
 @Getter
 public class Robot {
     private Direction currentDirection = Direction.Up;
     private RobotState robotState = RobotState.Paint;
-    private Coordinate currentCoordinate = new Coordinate(0, 0);
+    private Coordinate2d currentCoordinate = new Coordinate2d(0, 0);
 
     public void reset() {
         currentDirection = Direction.Up;
         robotState = RobotState.Paint;
-        currentCoordinate = new Coordinate(0, 0);
+        currentCoordinate = new Coordinate2d(0, 0);
     }
 
     public void switchState() {
@@ -30,19 +31,19 @@ public class Robot {
         switch (currentDirection) {
             case Up -> {
                 this.currentDirection = Direction.Left;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX() - 1, currentCoordinate.getY());
+                this.currentCoordinate = currentCoordinate.moveLeft();
             }
             case Left -> {
                 this.currentDirection = Direction.Down;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX(), currentCoordinate.getY() + 1);
+                this.currentCoordinate = currentCoordinate.moveDown();
             }
             case Down -> {
                 this.currentDirection = Direction.Right;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX() + 1, currentCoordinate.getY());
+                this.currentCoordinate = currentCoordinate.moveRight();
             }
             case Right -> {
                 this.currentDirection = Direction.Up;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX(), currentCoordinate.getY() - 1);
+                this.currentCoordinate = currentCoordinate.moveUp();
             }
         }
     }
@@ -51,19 +52,19 @@ public class Robot {
         switch (currentDirection) {
             case Up -> {
                 this.currentDirection = Direction.Right;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX() + 1, currentCoordinate.getY());
+                this.currentCoordinate = currentCoordinate.moveRight();
             }
             case Left -> {
                 this.currentDirection = Direction.Up;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX(), currentCoordinate.getY() - 1);
+                this.currentCoordinate = currentCoordinate.moveUp();
             }
             case Down -> {
                 this.currentDirection = Direction.Left;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX() - 1, currentCoordinate.getY());
+                this.currentCoordinate = currentCoordinate.moveLeft();
             }
             case Right -> {
                 this.currentDirection = Direction.Down;
-                this.currentCoordinate = new Coordinate(currentCoordinate.getX(), currentCoordinate.getY() + 1);
+                this.currentCoordinate = currentCoordinate.moveDown();
             }
         }
     }

@@ -1,4 +1,4 @@
-package day10;
+package math;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -16,8 +16,9 @@ public class CartesianCoordinate {
     public CartesianCoordinate relativeTo(CartesianCoordinate newCenter){
         return new CartesianCoordinate(x - newCenter.getX(), y - newCenter.getY());
     }
-    public PolarCoordinate toPolar() {
-        double angle = Math.round(Math.atan2(y, x) * 10000.0) / 10000.0;
+    public PolarCoordinate toPolar(int precision) {
+        double roundingFactor = Math.pow(10, precision);
+        double angle = Math.round(Math.atan2(y, x) * roundingFactor) / roundingFactor;
         return new PolarCoordinate(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), angle);
     }
 }

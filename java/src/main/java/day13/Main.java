@@ -1,6 +1,7 @@
 package day13;
 
 import intcode.IntcodeProgram;
+import math.Coordinate2d;
 
 import java.util.*;
 import java.util.function.LongConsumer;
@@ -23,7 +24,7 @@ public class Main {
 
         program.run();
 
-        Map<Coordinate, TileId> grid = new HashMap<>();
+        Map<Coordinate2d, TileId> grid = new HashMap<>();
         chunkLong(outputs, 3).stream()
                 .map(OutputSequence::parse)
                 .forEach(seq -> grid.put(seq.getCoordinate(), seq.getTileId()));
@@ -57,12 +58,12 @@ public class Main {
         program2.run();
     }
 
-    private static void provideInput(Map<Coordinate, TileId> grid, IntcodeProgram program2) {
-        Optional<Coordinate> paddleCoordinate = grid.entrySet().stream()
+    private static void provideInput(Map<Coordinate2d, TileId> grid, IntcodeProgram program2) {
+        Optional<Coordinate2d> paddleCoordinate = grid.entrySet().stream()
                 .filter(e -> e.getValue().equals(TileId.HorizontalPaddle))
                 .map(Map.Entry::getKey).findFirst();
 
-        Optional<Coordinate> ballCoordinate = grid.entrySet().stream()
+        Optional<Coordinate2d> ballCoordinate = grid.entrySet().stream()
                 .filter(e -> e.getValue().equals(TileId.Ball))
                 .map(Map.Entry::getKey).findFirst();
 

@@ -2,7 +2,7 @@ package day12;
 
 import java.util.stream.IntStream;
 
-import static utility.MathFunctions.leastCommonMultiple;
+import static math.MathFunctions.leastCommonMultiple;
 
 public class Main {
     public static void main(String[] args) {

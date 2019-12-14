@@ -1,4 +1,4 @@
-package day10;
+package math;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

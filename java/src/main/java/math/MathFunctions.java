@@ -1,4 +1,4 @@
-package utility;
+package math;
 
 public class MathFunctions {
     public static long leastCommonMultiple(long a, long b) {

@@ -1,16 +1,18 @@
 package day3;
 
+import math.Coordinate2d;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static day3.Coordinate.CENTRAL_PORT;
+import static day3.Cell.CENTRAL_PORT;
 
 public class GridBuilder {
-    private Coordinate currentCoord = CENTRAL_PORT;
+    private Coordinate2d currentCoord = CENTRAL_PORT;
     private int currentSteps = 0;
     private int currentWire = 0;
-    private Map<Coordinate, Cell> grid = new HashMap<>();
+    private Map<Coordinate2d, Cell> grid = new HashMap<>();
 
     public void startWire(int wireNo) {
         this.currentWire = wireNo;
@@ -45,11 +47,11 @@ public class GridBuilder {
         cell.addWire(currentWire, currentSteps);
     }
 
-    public int findClosestDistance() {
+    public long findClosestDistance() {
         return grid.entrySet().stream()
                 .filter(e -> e.getValue().getWireCount() == 2)
-                .min(Comparator.comparing(e -> e.getKey().getDistanceTo(CENTRAL_PORT)))
-                .map(e -> e.getKey().getDistanceTo(CENTRAL_PORT))
+                .min(Comparator.comparing(e -> e.getKey().getManhattanDistanceTo(CENTRAL_PORT)))
+                .map(e -> e.getKey().getManhattanDistanceTo(CENTRAL_PORT))
                 .orElseThrow(() -> new IllegalStateException("Found no result with shortest distance..."));
     }
 
