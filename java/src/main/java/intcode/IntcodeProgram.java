@@ -44,6 +44,7 @@ public class IntcodeProgram {
             long output = prog.fetchParam(1, inst.getParam1AccessMode());
 
             prog.moveInstructionPointer(2);
+            prog.addOutput(output);
             prog.getOutputHandlers().forEach(handler -> handler.accept(output));
         });
 
@@ -91,6 +92,9 @@ public class IntcodeProgram {
     private Deque<Long> inputQueue = new ArrayDeque<>();
 
     @Builder.Default
+    private Deque<Long> outputQueue = new ArrayDeque<>();
+
+    @Builder.Default
     private List<LongConsumer> outputHandlers = new ArrayList<>();
 
     @Builder.Default
@@ -100,6 +104,10 @@ public class IntcodeProgram {
     private int relativeBase = 0;
 
     private List<Long> memory;
+
+    private void addOutput(Long output){
+        outputQueue.addLast(output);
+    }
 
     public IntcodeProgram addInput(Long input) {
         inputQueue.addLast(input);
@@ -113,9 +121,13 @@ public class IntcodeProgram {
         return this;
     }
 
-    public void run() {
+    public Deque<Long> run() {
         while (!isTerminated()) {
             IntcodeInstruction currentInstruction = decode();
+            if(currentInstruction.getCode() == OPCODE_INPUT && inputQueue.isEmpty()){
+                return outputQueue;
+            }
+
             BiConsumer<IntcodeProgram, IntcodeInstruction> operation = OPERATIONS.get(currentInstruction.getCode());
             if (operation == null) {
                 throw new IllegalStateException("Operation with Code " + currentInstruction.getCode() + " is invalid!");
@@ -123,6 +135,8 @@ public class IntcodeProgram {
 
             operation.accept(this, currentInstruction);
         }
+
+        return outputQueue;
     }
 
     public boolean isTerminated() {
@@ -131,6 +145,7 @@ public class IntcodeProgram {
 
     public IntcodeProgram copy() {
         return toBuilder()
+                .outputQueue(new ArrayDeque<>(outputQueue))
                 .inputQueue(new ArrayDeque<>(inputQueue))
                 .memory(new ArrayList<>(memory))
                 .outputHandlers(new ArrayList<>(outputHandlers))
