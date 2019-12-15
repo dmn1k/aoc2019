@@ -3,9 +3,10 @@ package day4;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -31,13 +32,13 @@ public class Main {
     private static boolean digitsNeverDecrease(String input) {
         String sorted = Arrays.stream(input.split(""))
                 .sorted()
-                .collect(Collectors.joining());
+                .collect(joining());
 
         return input.equals(sorted);
     }
 
     private static Map<String, Long> getDigitFrequency(String input) {
         return Arrays.stream(input.split(""))
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+                .collect(groupingBy(identity(), counting()));
     }
 }

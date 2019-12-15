@@ -2,23 +2,16 @@ package day9;
 
 import intcode.IntcodeProgram;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static utility.InputDownloader.downloadInput;
+import static utility.InputDownloader.downloadLongList;
 
 public class Main {
     public static void main(String[] args) {
-        List<Long> initialMemory = downloadInput(9).stream()
-                .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> initialMemory = downloadLongList(9);
 
-        IntcodeProgram programTemplate = IntcodeProgram.builder().memory(initialMemory)
-                .outputHandlers(Collections.singletonList(System.out::println))
-                .build();
+        IntcodeProgram programTemplate = IntcodeProgram.create(initialMemory)
+                .addOutputHandler(System.out::println);
         IntcodeProgram part1Program = programTemplate.copy().addInput(1L);
 
         System.out.println("Part 1:");

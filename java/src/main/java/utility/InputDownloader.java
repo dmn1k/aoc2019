@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,5 +31,12 @@ public class InputDownloader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<Long> downloadLongList(int day) {
+        return downloadInput(day).stream()
+                    .flatMap(input -> Arrays.stream(input.split(",")))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
     }
 }

@@ -4,58 +4,52 @@ import intcode.IntcodeProgram;
 import math.Coordinate2d;
 
 import java.util.*;
-import java.util.function.LongConsumer;
-import java.util.stream.Collectors;
 
-import static utility.InputDownloader.downloadInput;
+import static utility.InputDownloader.downloadLongList;
 
 public class Main {
     public static void main(String[] args) {
-        List<Long> initialMemory = downloadInput(11).stream()
-                .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> initialMemory = downloadLongList(11);
 
-        IntcodeProgram program = IntcodeProgram.builder().memory(initialMemory).build().addInput(0L);
-        Map<Coordinate2d, Color> grid = new HashMap<>();
-        Robot robot = new Robot();
-        LongConsumer outputHandler = output -> {
-            if (robot.getRobotState() == RobotState.Paint) {
-                grid.put(robot.getCurrentCoordinate(), Color.valueOf(output));
-            } else {
-                robot.turnAndMove(output);
-                Color currentColor = grid.getOrDefault(robot.getCurrentCoordinate(), Color.Black);
-                program.addInput(currentColor.getValue());
-            }
+        IntcodeProgram part1Program = IntcodeProgram.create(initialMemory).addInput(0L);
+        Map<Coordinate2d, Color> part1Grid = buildGrid(part1Program);
 
-            robot.switchState();
-        };
+        System.out.println("Part 1: " + part1Grid.keySet().size());
 
-        program.addOutputHandler(outputHandler);
-        program.run();
+        IntcodeProgram part2Program = IntcodeProgram.create(initialMemory).addInput(1L);
+        Map<Coordinate2d, Color> part2Grid = buildGrid(part2Program);
 
-        System.out.println("Part 1: " + grid.keySet().size());
-
-        program.reset(initialMemory);
-        program.addInput(1L);
-        program.addOutputHandler(outputHandler);
-        grid.clear();
-        robot.reset();
-        program.run();
-
-        long minX = grid.keySet().stream().min(Comparator.comparing(Coordinate2d::getX)).map(Coordinate2d::getX).orElseThrow();
-        long minY = grid.keySet().stream().min(Comparator.comparing(Coordinate2d::getY)).map(Coordinate2d::getY).orElseThrow();
-        long maxX = grid.keySet().stream().max(Comparator.comparing(Coordinate2d::getX)).map(Coordinate2d::getX).orElseThrow();
-        long maxY = grid.keySet().stream().max(Comparator.comparing(Coordinate2d::getY)).map(Coordinate2d::getY).orElseThrow();
+        long minX = part2Grid.keySet().stream().min(Comparator.comparing(Coordinate2d::getX)).map(Coordinate2d::getX).orElseThrow();
+        long minY = part2Grid.keySet().stream().min(Comparator.comparing(Coordinate2d::getY)).map(Coordinate2d::getY).orElseThrow();
+        long maxX = part2Grid.keySet().stream().max(Comparator.comparing(Coordinate2d::getX)).map(Coordinate2d::getX).orElseThrow();
+        long maxY = part2Grid.keySet().stream().max(Comparator.comparing(Coordinate2d::getY)).map(Coordinate2d::getY).orElseThrow();
 
         for (long y = minY; y <= maxY; y++) {
             StringBuilder rowBuilder = new StringBuilder();
             for (long x = minX; x <= maxX; x++) {
-                Color color = grid.getOrDefault(new Coordinate2d(x, y), Color.Black);
+                Color color = part2Grid.getOrDefault(new Coordinate2d(x, y), Color.Black);
                 rowBuilder.append(color.toString());
             }
 
             System.out.println(rowBuilder.toString());
         }
+    }
+
+    private static Map<Coordinate2d, Color> buildGrid(IntcodeProgram program) {
+        Map<Coordinate2d, Color> grid = new HashMap<>();
+        Robot robot = new Robot();
+
+        while (!program.isTerminated()) {
+            Deque<Long> outputs = program.run();
+            Color color = Color.valueOf(outputs.pollFirst());
+            Long direction = outputs.pollFirst();
+            grid.put(robot.getCurrentCoordinate(), color);
+
+            robot.turnAndMove(direction);
+            Color currentColor = grid.getOrDefault(robot.getCurrentCoordinate(), Color.Black);
+            program.addInput(currentColor.getValue());
+        }
+
+        return grid;
     }
 }

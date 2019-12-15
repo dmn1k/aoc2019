@@ -5,27 +5,22 @@ import math.Coordinate2d;
 
 import java.util.*;
 import java.util.function.LongConsumer;
-import java.util.stream.Collectors;
 
-import static utility.Collections.chunkLong;
-import static utility.InputDownloader.downloadInput;
+import static utility.Collections.chunk;
+import static utility.InputDownloader.downloadLongList;
 
 public class Main {
     public static void main(String[] args) {
-        List<Long> initialMemory = downloadInput(13).stream()
-                .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> initialMemory = downloadLongList(13);
 
         List<Long> outputs = new ArrayList<>();
-        IntcodeProgram program = IntcodeProgram.builder().memory(initialMemory)
-                .outputHandlers(Collections.singletonList(outputs::add))
-                .build();
+        IntcodeProgram program = IntcodeProgram.create(initialMemory)
+                .addOutputHandler(outputs::add);
 
         program.run();
 
         Map<Coordinate2d, TileId> grid = new HashMap<>();
-        chunkLong(outputs, 3).stream()
+        chunk(outputs, 3).stream()
                 .map(OutputSequence::parse)
                 .forEach(seq -> grid.put(seq.getCoordinate(), seq.getTileId()));
 
@@ -36,7 +31,7 @@ public class Main {
         grid.clear();
 
         OutputSequence.OutputSequenceBuilder outputSequenceBuilder = new OutputSequence.OutputSequenceBuilder();
-        IntcodeProgram program2 = IntcodeProgram.builder().memory(initialMemory).build().addInput(0L);
+        IntcodeProgram program2 = IntcodeProgram.create(initialMemory).addInput(0L);
         LongConsumer outputHandler = output -> {
             outputSequenceBuilder.addOutput(output);
 

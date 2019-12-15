@@ -14,6 +14,24 @@ public enum Direction {
         this.code = code;
     }
 
+    public Direction turnLeft(){
+        return switch(this){
+            case North -> West;
+            case West -> South;
+            case South -> East;
+            case East -> North;
+        };
+    }
+
+    public Direction turnRight(){
+        return switch(this){
+            case North -> East;
+            case West -> North;
+            case South -> West;
+            case East -> South;
+        };
+    }
+
     public static Direction parse(long input) {
         return Arrays.stream(Direction.values())
                 .filter(d -> d.getCode() == input)

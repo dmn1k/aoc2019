@@ -7,18 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static utility.InputDownloader.downloadInput;
+import static utility.InputDownloader.downloadLongList;
 
 public class Main {
     public static void main(String[] args) {
-        List<Long> initialMemory = downloadInput(7).stream()
-                .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> initialMemory = downloadLongList(7);
 
-        IntcodeProgram programTemplate = IntcodeProgram.builder()
-                .memory(initialMemory)
-                .build();
+        IntcodeProgram programTemplate = IntcodeProgram.create(initialMemory);
 
         System.out.println("Part 1: " + getOutputWithoutFeebackLoop(programTemplate));
         System.out.println("Part 2: " + getOutputWithFeebackLoop(programTemplate));

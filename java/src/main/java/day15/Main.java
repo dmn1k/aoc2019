@@ -7,51 +7,42 @@ import math.Direction;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static utility.InputDownloader.downloadInput;
+import static utility.InputDownloader.downloadLongList;
 
 public class Main {
     public static void main(String[] args) {
-        List<Long> initialMemory = downloadInput(15).stream()
-                .flatMap(input -> Arrays.stream(input.split(",")))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> initialMemory = downloadLongList(15);
 
         Coordinate2d startingPoint = new Coordinate2d(0, 0);
         Set<Coordinate2d> alreadyVisited = new HashSet<>();
         alreadyVisited.add(startingPoint);
-        IntcodeProgram program = IntcodeProgram.builder().memory(initialMemory).build();
-        Trail currentTrail = Trail.createNew(startingPoint, program);
+        IntcodeProgram program = IntcodeProgram.create(initialMemory);
+        Path currentPath = Path.createNew(startingPoint, program);
 
-        Trail trailToOxygenSystem = findOxygenSystem(currentTrail, alreadyVisited);
-        System.out.println("Part 1: " + trailToOxygenSystem.getStepCount());
+        Path pathToOxygenSystem = findOxygenSystem(currentPath, alreadyVisited);
+        System.out.println("Part 1: " + pathToOxygenSystem.getStepCount());
 
         alreadyVisited.clear();
-        alreadyVisited.add(trailToOxygenSystem.getCurrentCoordinate());
-        Trail longestTrail = findLongestTrail(trailToOxygenSystem.cutTail(), alreadyVisited);
-        System.out.println("Part 2: " + longestTrail.getStepCount());
+        alreadyVisited.add(pathToOxygenSystem.getHead());
+        Path longestPath = findLongestPath(pathToOxygenSystem.cutTail(), alreadyVisited);
+        System.out.println("Part 2: " + longestPath.getStepCount());
     }
 
 
-    private static Trail findOxygenSystem(Trail currentTrail, Set<Coordinate2d> visitedCoordinates) {
-        List<Direction> directionsToExplore = Arrays.stream(Direction.values())
-                .filter(d -> !visitedCoordinates.contains(currentTrail.getCurrentCoordinate().move(d)))
-                .collect(Collectors.toList());
+    private static Path findOxygenSystem(Path currentPath, Set<Coordinate2d> visitedCoordinates) {
+        List<Direction> directionsToExplore = getDirectionsToExplore(currentPath, visitedCoordinates);
 
         for (Direction direction : directionsToExplore) {
-            IntcodeProgram programCopy = currentTrail.getProgramState().copy().addInput(direction.getCode());
-            Deque<Long> outputs = programCopy.run();
+            IntcodeProgram programCopy = currentPath.getProgramState().copy().addInput(direction.getCode());
+            Deque<Long> outputs = runProgram(programCopy);
 
-            if (programCopy.isTerminated()) {
-                throw new IllegalStateException("Program terminated");
-            }
-
-            Trail newTrail = currentTrail.moveTo(direction, programCopy);
-            visitedCoordinates.add(newTrail.getCurrentCoordinate());
+            Path newPath = currentPath.moveTo(direction, programCopy);
+            visitedCoordinates.add(newPath.getHead());
             StatusCode statusCode = StatusCode.parse(outputs.pollFirst());
             if (statusCode.equals(StatusCode.OxygenSystem)) {
-                return newTrail;
+                return newPath;
             } else if (statusCode.equals(StatusCode.Moved)) {
-                Trail oxygenSystem = findOxygenSystem(newTrail, visitedCoordinates);
+                Path oxygenSystem = findOxygenSystem(newPath, visitedCoordinates);
                 if (oxygenSystem != null) {
                     return oxygenSystem;
                 }
@@ -61,31 +52,40 @@ public class Main {
         return null;
     }
 
-    private static Trail findLongestTrail(Trail currentTrail, Set<Coordinate2d> visitedCoordinates) {
-        List<Direction> directionsToExplore = Arrays.stream(Direction.values())
-                .filter(d -> !visitedCoordinates.contains(currentTrail.getCurrentCoordinate().move(d)))
-                .collect(Collectors.toList());
+    private static Path findLongestPath(Path currentPath, Set<Coordinate2d> visitedCoordinates) {
+        List<Direction> directionsToExplore = getDirectionsToExplore(currentPath, visitedCoordinates);
 
-        List<Trail> foundTrails = new ArrayList<>();
+        List<Path> foundPaths = new ArrayList<>();
         for (Direction direction : directionsToExplore) {
-            IntcodeProgram programCopy = currentTrail.getProgramState().copy().addInput(direction.getCode());
-            Deque<Long> outputs = programCopy.run();
+            IntcodeProgram programCopy = currentPath.getProgramState().copy().addInput(direction.getCode());
+            Deque<Long> outputs = runProgram(programCopy);
 
-            if (programCopy.isTerminated()) {
-                throw new IllegalStateException("Program terminated");
-            }
-
-            Trail newTrail = currentTrail.moveTo(direction, programCopy);
-            visitedCoordinates.add(newTrail.getCurrentCoordinate());
+            Path newPath = currentPath.moveTo(direction, programCopy);
+            visitedCoordinates.add(newPath.getHead());
             StatusCode statusCode = StatusCode.parse(outputs.pollFirst());
             if (!statusCode.equals(StatusCode.HitWall)) {
-                Trail longestTrail = findLongestTrail(newTrail, visitedCoordinates);
-                foundTrails.add(longestTrail);
+                Path longestPath = findLongestPath(newPath, visitedCoordinates);
+                foundPaths.add(longestPath);
             }
         }
 
-        return foundTrails.stream()
-                .max(Comparator.comparing(Trail::getStepCount))
-                .orElse(currentTrail);
+        return foundPaths.stream()
+                .max(Comparator.comparing(Path::getStepCount))
+                .orElse(currentPath);
+    }
+
+    private static Deque<Long> runProgram(IntcodeProgram programCopy) {
+        Deque<Long> outputs = programCopy.run();
+
+        if (programCopy.isTerminated()) {
+            throw new IllegalStateException("Program terminated");
+        }
+        return outputs;
+    }
+
+    private static List<Direction> getDirectionsToExplore(Path currentPath, Set<Coordinate2d> visitedCoordinates) {
+        return Arrays.stream(Direction.values())
+                .filter(d -> !visitedCoordinates.contains(currentPath.getHead().move(d)))
+                .collect(Collectors.toList());
     }
 }
