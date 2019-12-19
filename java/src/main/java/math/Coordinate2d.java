@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Arrays;
+import java.util.List;
+
 @AllArgsConstructor
 @EqualsAndHashCode
 @Getter
@@ -29,7 +32,7 @@ public class Coordinate2d {
         return new Coordinate2d(x, y + 1);
     }
 
-    public Coordinate2d move(Direction direction){
+    public Coordinate2d move(Direction direction) {
         return switch (direction) {
             case North -> moveUp();
             case South -> moveDown();
@@ -37,6 +40,11 @@ public class Coordinate2d {
             case East -> moveRight();
         };
     }
+
+    public List<Coordinate2d> getAllNeighbors() {
+        return Arrays.asList(moveLeft(), moveUp(), moveRight(), moveDown());
+    }
+
     public long getManhattanDistanceTo(Coordinate2d other) {
         return Math.abs(x - other.getX()) + Math.abs(y - other.getY());
     }

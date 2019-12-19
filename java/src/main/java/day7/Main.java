@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static math.MathFunctions.createPermutations;
 import static utility.InputDownloader.downloadLongList;
 
 public class Main {
@@ -22,7 +23,7 @@ public class Main {
     private static long getOutputWithoutFeebackLoop(IntcodeProgram programTemplate) {
         List<Long> outputs = new ArrayList<>();
         List<Integer> phaseSetting = Arrays.asList(0, 1, 2, 3, 4);
-        for (List<Integer> setting : getAllCombinations(phaseSetting)) {
+        for (List<Integer> setting : createPermutations(phaseSetting)) {
             List<IntcodeProgram> programs = setting.stream()
                     .map(phaseValue -> programTemplate.copy().addInput((long) phaseValue))
                     .collect(Collectors.toList());
@@ -42,7 +43,7 @@ public class Main {
     private static long getOutputWithFeebackLoop(IntcodeProgram programTemplate) {
         List<Long> outputs = new ArrayList<>();
         List<Integer> phaseSetting = Arrays.asList(5, 6, 7, 8, 9);
-        for (List<Integer> setting : getAllCombinations(phaseSetting)) {
+        for (List<Integer> setting : createPermutations(phaseSetting)) {
             List<IntcodeProgram> programs = setting.stream()
                     .map(phaseValue -> programTemplate.copy().addInput((long) phaseValue))
                     .collect(Collectors.toList());
@@ -70,27 +71,5 @@ public class Main {
         IntcodeProgram nextProgram = programs.get(current < programs.size() - 1 ? current + 1 : 0);
 
         nextProgram.addInput(output).run();
-    }
-
-    private static List<List<Integer>> getAllCombinations(List<Integer> input) {
-        List<List<Integer>> result = new ArrayList<>();
-
-        if (input.size() == 1) {
-            result.add(input);
-            return result;
-        }
-
-        for (Integer i : input) {
-            List<Integer> listWithoutI = input.stream().filter(elem -> !elem.equals(i)).collect(Collectors.toList());
-            List<List<Integer>> allCombinations = getAllCombinations(listWithoutI);
-            for (List<Integer> combination : allCombinations) {
-                List<Integer> list = new ArrayList<>();
-                list.add(i);
-                list.addAll(combination);
-                result.add(list);
-            }
-        }
-
-        return result;
     }
 }

@@ -6,12 +6,14 @@ import java.util.Arrays;
 
 @Getter
 public enum Direction {
-    North(1), South(2), West(3), East(4);
+    North(1, "U"), South(2, "D"), West(3, "L"), East(4, "R");
 
     private long code;
+    private String mnemonic;
 
-    Direction(long code) {
+    Direction(long code, String mnemonic) {
         this.code = code;
+        this.mnemonic = mnemonic;
     }
 
     public Direction turnLeft(){
